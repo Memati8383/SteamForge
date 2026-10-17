@@ -6,7 +6,7 @@
 [![build](https://github.com/Memati8383/SteamForge/actions/workflows/build.yml/badge.svg)](https://github.com/Memati8383/SteamForge/actions/workflows/build.yml)
 
 C# / .NET 8 / Avalonia. Two auth transports, health-tracked proxies with auto-sourcing,
-value filtering, resumable sessions, three output sinks — and **no Steam Web API key**:
+value filtering, resumable sessions, four output sinks — and **no Steam Web API key**:
 every enrichment path runs off an access token or a scrape.
 
 ![Live results](screenshots/live-results.png)
@@ -127,7 +127,7 @@ Every field here comes from a path that works with nothing but the login:
 | persona when the profile is private | profile page `<title>` (XML omits `<steamID>`) | no |
 | games, playtime, appid | `IPlayerService/GetOwnedGames` | yes |
 | account level | `IPlayerService/GetSteamLevel` | yes |
-| wallet balance, store country | `store.steampowered.com/account/` scrape with a forged `steamLoginSecure` (`{steamid}||{access_token}`) | yes |
+| wallet balance, store country | `store.steampowered.com/account/` scrape with a forged `steamLoginSecure` cookie (steamid and access token joined by a double pipe) | yes |
 
 A guard-locked account has no access token, so it takes the XML path only — it still comes
 back with persona, visibility and ban state instead of an empty row.

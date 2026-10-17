@@ -1,0 +1,23 @@
+<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Surfaces, darkest to lightest, so depth reads without a shadow. -->
+    <SolidColorBrush x:Key="SurfaceBackground" Color="#0E1116" />
+    <SolidColorBrush x:Key="SurfacePanel"     Color="#141821" />
+    <SolidColorBrush x:Key="SurfaceElevated"  Color="#1A1F2B" />
+    <SolidColorBrush x:Key="SurfaceActive"    Color="#232A38" />
+
+    <SolidColorBrush x:Key="BorderDefault" Color="#2A3242" />
+
+    <SolidColorBrush x:Key="TextPrimary"   Color="#E6EAF2" />
+    <SolidColorBrush x:Key="TextSecondary" Color="#8B94A7" />
+
+    <!-- Verdict colours, one per CheckStatus. -->
+    <SolidColorBrush x:Key="StatusValid"      Color="#3FD07F" />
+    <SolidColorBrush x:Key="StatusBad"        Color="#FF5C5C" />
+    <SolidColorBrush x:Key="StatusGuard"      Color="#FFB03A" />
+    <SolidColorBrush x:Key="StatusNotFound"   Color="#9AA4B5" />
+    <SolidColorBrush x:Key="StatusRateLimited" Color="#C77DFF" />
+
+</ResourceDictionary>

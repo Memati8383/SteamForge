@@ -1,0 +1,218 @@
+<Window
+    x:Class="SteamForge.App.MainWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:SteamForge.App.ViewModels"
+    Title="SteamForge — Steam Account Checker"
+    Width="1400" Height="900"
+    MinWidth="1200" MinHeight="700"
+    Background="{StaticResource SurfaceBackground}"
+    FontSize="14"
+    FontFamily="Segoe UI, Arial, sans-serif">
+
+    <Window.DataContext>
+        <vm:MainViewModel />
+    </Window.DataContext>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{StaticResource SurfaceElevated}" BorderBrush="{StaticResource BorderDefault}" BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <TextBlock Grid.Column="0" Text="⚙️" FontSize="24" Margin="16" VerticalAlignment="Center" />
+                <StackPanel Grid.Column="1" Spacing="12">
+                    <TextBlock Text="SteamForge — Steam Account Checker" FontSize="20" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" Margin="24,16,0,0" />
+                    <TextBlock Text="Advanced Steam account validation with intelligent proxy management" FontSize="13" Foreground="{StaticResource TextSecondary}" Margin="24,0,0,0" />
+                </StackPanel>
+                <Button Grid.Column="2" Content="✕" FontSize="16" Padding="0" Width="40" Height="40" Classes="ghost" Margin="8" Click="Close_Click" ToolTip.Tip="Close" />
+            </Grid>
+        </Border>
+
+        <!-- Main Content Layout -->
+        <Grid Grid.Row="1" ColumnDefinitions="280,*,380" RowDefinitions="*" Margin="0">
+            <!-- Sidebar Controls -->
+            <Border Grid.Column="0" Background="{StaticResource SurfacePanel}" BorderBrush="{StaticResource BorderDefault}" BorderThickness="0,0,1,0" Padding="0">
+                <ScrollViewer>
+                    <StackPanel Spacing="0">
+                        <!-- Combo File Section -->
+                        <Border Background="{StaticResource SurfaceElevated}" BorderBrush="{StaticResource BorderDefault}" BorderThickness="0,0,0,1" Padding="16,18">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="INPUT FILES" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextSecondary}" Margin="0,0,0,6" />
+                                
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Combo File" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}" />
+                                    <Border Classes="input-container">
+                                        <TextBox Text="{Binding ComboPath}" Watermark="combo.txt  —  user:pass per line" Classes="text-input" />
+                                    </Border>
+                                    <Button Content="Browse…" Click="BrowseCombo_Click" Classes="secondary-btn" />
+                                </StackPanel>
+
+                                <StackPanel Spacing="8" Margin="0,10,0,0">
+                                    <TextBlock Text="Proxy List" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}" />
+                                    <Border Classes="input-container">
+                                        <TextBox Text="{Binding ProxyPath}" Watermark="proxies.txt" Classes="text-input" />
+                                    </Border>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Button Content="Load File" Command="{Binding LoadProxyFileCommand}" Classes="secondary-btn" />
+                                        <Button Content="Fetch + Test Free" Command="{Binding FetchProxiesCommand}" IsEnabled="{Binding !IsFetching}" Classes="primary-btn" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Settings Section -->
+                        <Border Background="{StaticResource SurfaceElevated}" BorderBrush="{StaticResource BorderDefault}" BorderThickness="0,0,0,1" Padding="16,12">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="WORKERS &amp; SETTINGS" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextSecondary}" />
+
+                                <!-- One label, one spinner per row: the old Auto,*,Auto,*,Auto row split
+                                     starved both the label and the value field in a 280px sidebar. -->
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Workers" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="0,0,12,10" />
+                                    <NumericUpDown Grid.Row="0" Grid.Column="1" Value="{Binding Workers}" Minimum="1" Maximum="400" Increment="5" Width="124" Margin="0,0,0,8" Classes="num-input" />
+
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Delay (ms)" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="0,0,12,10" />
+                                    <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding DelayMs}" Minimum="0" Maximum="5000" Increment="50" Width="124" Margin="0,0,0,8" Classes="num-input" />
+
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Retries" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="0,0,12,10" />
+                                    <NumericUpDown Grid.Row="2" Grid.Column="1" Value="{Binding MaxRetries}" Minimum="0" Maximum="10" Width="124" Margin="0,0,0,8" Classes="num-input" />
+
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Timeout (s)" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="0,0,12,0" />
+                                    <NumericUpDown Grid.Row="3" Grid.Column="1" Value="{Binding RequestTimeout}" Minimum="5" Maximum="60" Width="124" Classes="num-input" />
+                                </Grid>
+
+                                <StackPanel Spacing="8" Margin="0,6,0,0">
+                                    <TextBlock Text="OPTIONS" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextSecondary}" />
+                                    <CheckBox Content="Use proxy" IsChecked="{Binding UseProxy}" Classes="checkbox" />
+                                    <CheckBox Content="Enrich (games/level)" IsChecked="{Binding Enrich}" Classes="checkbox" />
+                                    <CheckBox Content="Enrich guard-locked" IsChecked="{Binding EnrichGuardLocked}" Classes="checkbox" />
+                                    <CheckBox Content="Show invalid results" IsChecked="{Binding ShowInvalid}" Classes="checkbox" />
+                                    <CheckBox Content="Notable filter" IsChecked="{Binding NotableFilter}" Classes="checkbox" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Authentication Mode -->
+                        <Border Background="{StaticResource SurfaceElevated}" BorderBrush="{StaticResource BorderDefault}" BorderThickness="0,0,0,1" Padding="16,18">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="AUTHENTICATION MODE" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextSecondary}" />
+                                <ComboBox ItemsSource="{Binding Modes}" SelectedIndex="{Binding ModeIndex}" Classes="combo-input" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Main Results Area -->
+            <Border Grid.Column="1" Background="{StaticResource SurfacePanel}" BorderBrush="{StaticResource BorderDefault}" BorderThickness="0,0,1,0" Margin="0">
+                <Grid RowDefinitions="Auto,*,Auto">
+                    <!-- Stats Header -->
+                    <Border Grid.Row="0" Background="{StaticResource SurfaceElevated}" BorderBrush="{StaticResource BorderDefault}" BorderThickness="0,0,0,1" Padding="20">
+                        <StackPanel Orientation="Horizontal" Spacing="32">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Valid" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource TextSecondary}" />
+                                <TextBlock Text="{Binding Valid}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource StatusValid}" />
+                            </StackPanel>
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Guard Locked" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource TextSecondary}" />
+                                <TextBlock Text="{Binding GuardLocked}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource StatusGuard}" />
+                            </StackPanel>
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Bad" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource TextSecondary}" />
+                                <TextBlock Text="{Binding Invalid}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource StatusBad}" />
+                            </StackPanel>
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Not Found" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource TextSecondary}" />
+                                <TextBlock Text="{Binding NotFound}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource StatusNotFound}" />
+                            </StackPanel>
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Rate Limited" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource TextSecondary}" />
+                                <TextBlock Text="{Binding RateLimited}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource StatusRateLimited}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Results Table -->
+                    <Grid Grid.Row="1" RowDefinitions="Auto,*" Margin="20">
+                        <TextBlock Grid.Row="0" Text="LIVE RESULTS" FontSize="13" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" Margin="0,0,0,12" />
+                        <Border Grid.Row="1" Classes="results-container">
+                            <DataGrid ItemsSource="{Binding Rows}"
+                                     IsReadOnly="True"
+                                     CanUserSortColumns="True"
+                                     GridLinesVisibility="Horizontal"
+                                     HeadersVisibility="Column"
+                                     RowBackground="{StaticResource SurfacePanel}"
+                                     Background="{StaticResource SurfacePanel}"
+                                     BorderBrush="{StaticResource BorderDefault}"
+                                     MinHeight="400">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="User" Binding="{Binding Username}" Width="180" />
+                                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100" />
+                                    <DataGridTextColumn Header="Guard" Binding="{Binding Guard}" Width="80" />
+                                    <DataGridTextColumn Header="SteamID" Binding="{Binding SteamId}" Width="140" />
+                                    <DataGridTextColumn Header="Persona" Binding="{Binding Persona}" Width="140" />
+                                    <DataGridTextColumn Header="Ctry" Binding="{Binding Country}" Width="76" />
+                                    <DataGridTextColumn Header="Lvl" Binding="{Binding Level}" Width="68" />
+                                    <DataGridTextColumn Header="Games" Binding="{Binding Games}" Width="78" />
+                                    <DataGridTextColumn Header="Notable" Binding="{Binding Notable}" Width="86" />
+                                    <DataGridTextColumn Header="Wallet" Binding="{Binding Wallet}" Width="80" />
+                                    <DataGridTextColumn Header="Bans" Binding="{Binding Bans}" Width="70" />
+                                    <DataGridTextColumn Header="Time" Binding="{Binding Elapsed}" Width="66" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Border>
+                    </Grid>
+
+                    <!-- Progress Section -->
+                    <Border Grid.Row="2" Background="{StaticResource SurfaceElevated}" BorderBrush="{StaticResource BorderDefault}" BorderThickness="1,0,0,0" Padding="20">
+                        <StackPanel Spacing="12">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="Progress" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextSecondary}" />
+                                <TextBlock Text="{Binding ProgressText}" FontSize="12" Foreground="{StaticResource StatusValid}" />
+                            </StackPanel>
+                            <ProgressBar Value="{Binding ProgressValue}" Minimum="0" Maximum="100" Height="8" Foreground="{StaticResource StatusValid}" Background="{StaticResource SurfaceActive}" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Proxy Health Panel -->
+            <Border Grid.Column="2" Background="{StaticResource SurfacePanel}" BorderBrush="{StaticResource BorderDefault}" BorderThickness="1,0,0,0" Margin="0" Padding="16">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="PROXY HEALTH" FontSize="13" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" />
+                    <!-- Engine notices land here: pool fetches, retired proxies, rate-limit
+                         backoffs. Without this binding the whole notice stream was dropped. -->
+                    <TextBlock Text="{Binding ProxyStatus}" FontSize="12" Foreground="{StaticResource TextSecondary}" TextWrapping="Wrap" MinHeight="16" />
+                    <DataGrid ItemsSource="{Binding ProxyRows}"
+                             IsReadOnly="True"
+                             CanUserSortColumns="False"
+                             HeadersVisibility="Column"
+                             GridLinesVisibility="Horizontal"
+                             RowBackground="{StaticResource SurfacePanel}"
+                             Background="{StaticResource SurfacePanel}"
+                             BorderBrush="{StaticResource BorderDefault}"
+                             MinHeight="240">
+                        <DataGrid.Columns>
+                            <!-- Display already reads "scheme://host:port", so a Type column
+                                 would only repeat it and starve the endpoint column. -->
+                            <DataGridTextColumn Header="Proxy" Binding="{Binding Display}" Width="*" />
+                            <DataGridTextColumn Header="Health" Binding="{Binding Health}" Width="88" />
+                            <DataGridTextColumn Header="ms" Binding="{Binding Latency}" Width="62" />
+                            <DataGridTextColumn Header="%" Binding="{Binding SuccessRate}" Width="56" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Control Buttons Section -->
+        <Border Grid.Row="2" Background="{StaticResource SurfaceElevated}" BorderBrush="{StaticResource BorderDefault}" BorderThickness="1,0,0,0" Padding="20">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Button Content="▶ Start" Command="{Binding StartCommand}" Classes="primary-btn large-btn" IsVisible="{Binding !IsRunning}" />
+                <Button Content="⏸ Pause" Command="{Binding TogglePauseCommand}" Classes="secondary-btn large-btn" IsVisible="{Binding IsRunning}" />
+                <Button Content="■ Stop" Command="{Binding StopCommand}" Classes="danger-btn large-btn" IsVisible="{Binding IsRunning}" />
+                <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}" Margin="16,0,0,0" />
+            </StackPanel>
+        </Border>
+    </Grid>
+
+</Window>

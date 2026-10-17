@@ -1,0 +1,120 @@
+<Styles
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+      Class styling for the window's own markup. Everything here only sets plain
+      properties on top of the Fluent templates — no hand-written ControlTemplates —
+      so a theme update cannot silently blank a control out.
+      Loaded after FluentTheme, so these win over the defaults.
+    -->
+
+    <!-- buttons -->
+
+    <Style Selector="Button">
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Padding" Value="16,9" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="MinWidth" Value="64" />
+    </Style>
+
+    <Style Selector="Button.primary-btn">
+        <Setter Property="Background" Value="{StaticResource StatusValid}" />
+        <Setter Property="Foreground" Value="#0E1116" />
+        <Setter Property="BorderBrush" Value="{StaticResource StatusValid}" />
+    </Style>
+
+    <Style Selector="Button.secondary-btn">
+        <Setter Property="Background" Value="{StaticResource SurfaceActive}" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderDefault}" />
+    </Style>
+
+    <Style Selector="Button.danger-btn">
+        <Setter Property="Background" Value="{StaticResource StatusBad}" />
+        <Setter Property="Foreground" Value="#0E1116" />
+        <Setter Property="BorderBrush" Value="{StaticResource StatusBad}" />
+    </Style>
+
+    <Style Selector="Button.ghost">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{StaticResource TextSecondary}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderDefault}" />
+        <Setter Property="MinWidth" Value="0" />
+    </Style>
+
+    <Style Selector="Button.large-btn">
+        <Setter Property="Padding" Value="26,13" />
+        <Setter Property="FontSize" Value="15" />
+    </Style>
+
+    <!-- inputs -->
+
+    <Style Selector="Border.input-container">
+        <Setter Property="Background" Value="{StaticResource SurfaceActive}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderDefault}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="4,2" />
+    </Style>
+
+    <Style Selector="TextBox.text-input">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
+        <Setter Property="CaretBrush" Value="{StaticResource TextPrimary}" />
+        <Setter Property="SelectionBrush" Value="{StaticResource StatusRateLimited}" />
+        <Setter Property="Padding" Value="6,8" />
+    </Style>
+
+    <Style Selector="ComboBox.combo-input">
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="Background" Value="{StaticResource SurfaceActive}" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderDefault}" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="10,8" />
+    </Style>
+
+    <Style Selector="CheckBox.checkbox">
+        <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Padding" Value="0,1" />
+    </Style>
+
+    <!--
+      Fluent's column header ships ~12px of cell padding plus a ~18px sort indicator on
+      every column, so a 56px column showed "Ct" instead of "Ctry". Tightening the padding
+      is what makes the narrow status columns legible without giving them width.
+    -->
+    <Style Selector="DataGridColumnHeader">
+        <Setter Property="Padding" Value="6,0" />
+    </Style>
+
+    <Style Selector="NumericUpDown.num-input">
+        <Setter Property="Background" Value="{StaticResource SurfaceActive}" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderDefault}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="HorizontalContentAlignment" Value="Right" />
+    </Style>
+
+    <!-- panels -->
+    <Style Selector="Border.results-container">
+        <Setter Property="Background" Value="{StaticResource SurfacePanel}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderDefault}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="1" />
+    </Style>
+
+    <Style Selector="TextBox">
+        <Setter Property="FontSize" Value="13" />
+    </Style>
+
+</Styles>

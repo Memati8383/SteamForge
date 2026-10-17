@@ -1,0 +1,36 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build
+        run: dotnet build SteamForge.sln -c Release
+
+      # The suite is self-checking: prints ALL PASS and exits 0, otherwise the step fails.
+      - name: Tests
+        run: dotnet run --project src/SteamForge.Tests -c Release
+
+      - name: Publish single file
+        run: >
+          dotnet publish src/SteamForge.App/SteamForge.App.csproj -c Release -r win-x64
+          --self-contained true -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true -p:DebugType=none -o publish
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SteamForge
+          path: publish/SteamForge.exe

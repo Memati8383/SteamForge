@@ -1,0 +1,27 @@
+<Application
+    x:Class="SteamForge.App.App"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    RequestedThemeVariant="Dark">
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://SteamForge/Styles/Colors.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
+    <!--
+      Without a theme Avalonia builds no control templates: the Window itself never
+      paints, which shows up as an open frame with the desktop straight through it.
+      Fluent first so the project's own class styles override it, DataGrid last because
+      its theme lives in a separate assembly.
+    -->
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
+        <StyleInclude Source="avares://SteamForge/Styles/Controls.axaml" />
+    </Application.Styles>
+
+</Application>

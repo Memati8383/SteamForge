@@ -1,0 +1,16 @@
+##
+# SteamForge
+bin/
+obj/
+# runtime output and build artifacts — anchored to the repo root so they cannot
+# shadow real source folders such as src/SteamForge.Core/Output/
+/output/
+/publish/
+*.user
+*.suo
+.vs/
+/session_*.json
+/results.jsonl
+/results.csv
+/hits.txt
+/invalid.txt

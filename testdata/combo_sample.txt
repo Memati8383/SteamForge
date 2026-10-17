@@ -1,0 +1,38 @@
+# SteamForge test combo — every shape the parser must handle
+# comments start with #, //, or ;
+
+# 1. plain
+testuser01:PasswordOne123
+
+# 2. email as account name (Steam accepts email login)
+someone@example.com:Hunter2!
+
+# 3. password containing a colon (base64-ish)
+colonuser:aG9yYQ==:cGFzcw==
+
+# 4. trailing extra fields (cookie / totp / note)
+cookieuser:SuperSecret:MOBILE:steamLoginSecure=abc123
+
+# 5. reversed line (pass:user) — parser should flip it
+ReversedP@ssw0rd:reverseduser
+
+# 6. SteamID64 as account name
+76561198000000000:IdLoginPass1
+
+# 7. duplicate of row 1 (case-insensitive) — should be dropped
+TESTUSER01:PasswordOne123
+
+# 8. malformed — no colon, should be skipped
+thislinehasnocolon
+
+# 9. malformed — empty password side
+emptyuser:
+
+# 10. persona handle with dashes
+persona-handle_99:PersonaPass99
+
+# 11. empty password slot then blank lines follow
+
+
+# 12. normal row after blanks
+lastuser:LastPass999

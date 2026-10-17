@@ -1,0 +1,9 @@
+# sample proxies — the parser accepts all of these shapes
+1.2.3.4:8080
+5.6.7.8:1080
+10.0.0.1:3128:proxyuser:proxypass
+user:pass@9.9.9.9:9050
+http://2.3.4.5:8000
+socks5://3.4.5.6:1080
+socks5://suser:spass@4.5.6.7:1080
+socks4://7.7.7.7:9050

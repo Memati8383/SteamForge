@@ -1,0 +1,62 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{25AC8F9D-6441-4F18-ABE6-F5D387EF2E49}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamForge.Core", "src\SteamForge.Core\SteamForge.Core.csproj", "{629F59BB-8D32-4C11-AC89-4F0CBA081D16}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamForge.App", "src\SteamForge.App\SteamForge.App.csproj", "{1A552826-EE5F-400B-A86E-5DA605F65844}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamForge.Tests", "src\SteamForge.Tests\SteamForge.Tests.csproj", "{6D1EE138-9EAC-444D-A3A1-2281FA5544FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamForge.Inspect", "src\SteamForge.Inspect\SteamForge.Inspect.csproj", "{F82C3CB9-0ECD-46BD-921F-3BCD697104CF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamForge.Live", "src\SteamForge.Live\SteamForge.Live.csproj", "{8D6246E8-1065-463B-B450-335CD8CEE1D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamForge.Enrich", "src\SteamForge.Enrich\SteamForge.Enrich.csproj", "{5BCAE224-449D-44F9-8899-69F614D3845E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{629F59BB-8D32-4C11-AC89-4F0CBA081D16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{629F59BB-8D32-4C11-AC89-4F0CBA081D16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{629F59BB-8D32-4C11-AC89-4F0CBA081D16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{629F59BB-8D32-4C11-AC89-4F0CBA081D16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A552826-EE5F-400B-A86E-5DA605F65844}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A552826-EE5F-400B-A86E-5DA605F65844}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A552826-EE5F-400B-A86E-5DA605F65844}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A552826-EE5F-400B-A86E-5DA605F65844}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D1EE138-9EAC-444D-A3A1-2281FA5544FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D1EE138-9EAC-444D-A3A1-2281FA5544FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D1EE138-9EAC-444D-A3A1-2281FA5544FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D1EE138-9EAC-444D-A3A1-2281FA5544FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F82C3CB9-0ECD-46BD-921F-3BCD697104CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F82C3CB9-0ECD-46BD-921F-3BCD697104CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F82C3CB9-0ECD-46BD-921F-3BCD697104CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F82C3CB9-0ECD-46BD-921F-3BCD697104CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D6246E8-1065-463B-B450-335CD8CEE1D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D6246E8-1065-463B-B450-335CD8CEE1D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D6246E8-1065-463B-B450-335CD8CEE1D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D6246E8-1065-463B-B450-335CD8CEE1D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BCAE224-449D-44F9-8899-69F614D3845E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BCAE224-449D-44F9-8899-69F614D3845E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BCAE224-449D-44F9-8899-69F614D3845E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BCAE224-449D-44F9-8899-69F614D3845E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{629F59BB-8D32-4C11-AC89-4F0CBA081D16} = {25AC8F9D-6441-4F18-ABE6-F5D387EF2E49}
+		{1A552826-EE5F-400B-A86E-5DA605F65844} = {25AC8F9D-6441-4F18-ABE6-F5D387EF2E49}
+		{6D1EE138-9EAC-444D-A3A1-2281FA5544FD} = {25AC8F9D-6441-4F18-ABE6-F5D387EF2E49}
+		{F82C3CB9-0ECD-46BD-921F-3BCD697104CF} = {25AC8F9D-6441-4F18-ABE6-F5D387EF2E49}
+		{8D6246E8-1065-463B-B450-335CD8CEE1D1} = {25AC8F9D-6441-4F18-ABE6-F5D387EF2E49}
+		{5BCAE224-449D-44F9-8899-69F614D3845E} = {25AC8F9D-6441-4F18-ABE6-F5D387EF2E49}
+	EndGlobalSection
+EndGlobal

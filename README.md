@@ -197,6 +197,10 @@ dotnet run --project src/SteamForge.Tests -c Release   # prints ALL PASS, exit 0
 dotnet run --project src/SteamForge.App
 ```
 
+**No toolchain?** Grab `SteamForge.exe` from
+[Releases](https://github.com/Memati8383/SteamForge/releases/latest) — one self-contained
+file, double-click, no .NET install required.
+
 Single-file release:
 
 ```

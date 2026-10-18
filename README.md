@@ -29,8 +29,9 @@ PROXY HEALTH.*
 - **Guard-locked accounts still enrich** through the token-less path
 - **Value filter** — keep only accounts that clear minimum level, game count or notable-game
   count; the rest are counted and dropped from the outputs
-- **Proxies optional** — load a file or fetch free lists and test them against the exact
-  endpoint the checker will use; health, latency and success rate on a live panel
+- **Proxies optional** — load a file or hit `⚡ Get Free Proxies` to fetch free lists, test
+  them against the exact endpoint the checker will use and switch the run onto them in one
+  press; health, latency and success rate on a live panel
 - **Resumable** — a stopped run skips exactly what a previous run finished; a completed run
   clears its own session
 - **Four sinks** — `hits.txt`, `invalid.txt`, `results.jsonl`, `results.csv`, plus a session
@@ -152,6 +153,33 @@ index-based so no proxy starves.
 **Fetch + test** pulls from nine public free lists, then filters by probing each candidate
 against the exact endpoint the checker will use. Free lists are mostly dead on arrival;
 fetch wide, test narrow.
+
+**One press sets it up.** `⚡ Get Free Proxies`, sitting next to Start, runs the whole
+chain — fetch, probe, install — and then flips **Use proxy** on by itself, so the next
+Start actually goes through the pool it just built. The button goes dark while a run is
+live: an in-flight engine keeps the pool it was constructed with, so a swap mid-run could
+only take effect on the next Start anyway. The sidebar's `Fetch + Test` does the same
+sweep without touching the switch, for when the pool is being refilled under a switch you
+set yourself.
+
+Progress lands in the PROXY HEALTH panel as `Testing 14,500/74,997… 824 alive` and closes
+on `Pool: 824/74,997 alive. Proxy ON — ready to start.` A sweep that finds nothing says so
+and leaves the switch alone instead of enabling an empty pool.
+
+**The pool fills while the sweep runs.** The pool is installed before the first probe
+instead of after the last, so every survivor shows up in the PROXY HEALTH grid within
+400ms of answering while the counter keeps ticking — nothing waits for the sweep to end.
+A run started mid-sweep rides whatever has already been proven: the engine holds its own
+pool reference, so a sweep finishing late only shapes the next Start.
+
+**The switch flips at the threshold, not at the end.** The free lists currently hand over
+~75,000 unique candidates and most dead entries hang on until the 12s probe ceiling, so a
+full sweep is measured in tens of minutes. `Get Free Proxies` therefore turns **Use
+proxy** on as soon as 100 survivors have landed (~25s) and keeps the sweep running behind
+it — the pool keeps deepening while Start is already usable. Probes run 512-wide, which
+halves the sweep wall clock; candidates are shuffled first, because the lists are grouped
+by provider and unshuffled probes made the panel read as one host repeated down the
+column.
 
 SOCKS4 and SOCKS5 are supported. .NET's HttpClient has no SOCKS support in the BCL, so the
 handshake is implemented directly against `SocketsHttpHandler.ConnectCallback`.

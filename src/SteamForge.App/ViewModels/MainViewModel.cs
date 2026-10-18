@@ -82,12 +82,31 @@ public sealed partial class MainViewModel : ObservableObject
     // proxy fetch state
     [ObservableProperty] private bool _isFetching;
     [ObservableProperty] private string _proxyStatus = "No proxies loaded.";
+    // A fetch swaps _pool out from under the next run and an in-flight engine holds its
+    // own reference, so the one-shot must be dark while a run owns the pool.
+    [ObservableProperty] private bool _canFetchProxy = true;
+
+    partial void OnIsFetchingChanged(bool value) => CanFetchProxy = !value && !IsRunning;
+    partial void OnIsRunningChanged(bool value) => CanFetchProxy = !IsFetching && !value;
 
     public ObservableCollection<ResultRow> Rows { get; } = new();
     public ObservableCollection<ProxyRow> ProxyRows { get; } = new();
 
     private ProxyPool? _pool;
     private CancellationTokenSource? _cts;
+
+    // Free lists currently hand over ~75k unique candidates, and most dead entries hang on
+    // until the 12s probe ceiling instead of failing fast — measured 14.5k probes in 606s at
+    // 256 wide, i.e. ~10.6s average per probe, which is timeout-bound, not bandwidth-bound.
+    // Concurrency is therefore the only lever: 512 halves the wall clock to ~26 min while
+    // staying under the ephemeral-port budget (~48/s x 2min TIME_WAIT = 5.8k of 16k ports).
+    private const int ProxyTestConcurrency = 512;
+
+    // The pool only needs to be big enough to carry a run when this many survivors have
+    // landed. Measured: 100 alive at ~25s with the sweep at 512. Waiting for the full
+    // 74,997-candidate sweep before flipping the switch would make "fetch, test, use" a
+    // half-hour promise, and the engine keeps its own pool reference anyway.
+    private const int AutoUseThreshold = 100;
     private CheckEngine? _engine;
     private bool _uiFlushPending;
     private readonly List<ResultRow> _pendingRows = new();
@@ -100,35 +119,122 @@ public sealed partial class MainViewModel : ObservableObject
 
     // ---- proxy ----
 
+    // Sidebar action: fill the pool, leave the mode switch where the user put it.
     [RelayCommand]
-    private async Task FetchProxiesAsync()
+    private Task FetchProxiesAsync() => FetchCoreAsync(enableWhenReady: false);
+
+    /// <summary>
+    /// One press for the whole chain: pull the public free lists, probe every candidate
+    /// against Steam's own auth endpoint, install the survivors and switch the run onto
+    /// them. The checkbox ending up ON is the point of the button — a fetched pool that
+    /// nobody is using still runs direct, which reads as "the proxy did nothing".
+    /// </summary>
+    [RelayCommand]
+    private Task FetchAndUseProxiesAsync() =>
+        IsRunning ? Task.CompletedTask : FetchCoreAsync(enableWhenReady: true);
+
+    private async Task FetchCoreAsync(bool enableWhenReady)
     {
         if (IsFetching) return;
         IsFetching = true;
-        ProxyStatus = "Fetching free proxy lists…";
         try
         {
+            ProxyStatus = "Fetching free proxy lists…";
             var result = await ProxyFetcher.FetchAsync(includeHttp: true, includeSocks5: true);
             int fetched = result.Proxies.Count;
-            ProxyStatus = $"Fetched {fetched} candidates from {result.Report.Count(r => r.Error is null)} sources. Testing against Steam…";
+            int sources = result.Report.Count(r => r.Error is null);
 
-            var alive = await ProxyTester.FilterAliveAsync(
-                result.Proxies,
-                concurrency: 60,
-                onEach: null);
-
-            _pool = new ProxyPool();
-            _pool.AddRange(alive);
-
-            await Dispatcher.UIThread.InvokeAsync(() =>
+            if (fetched == 0)
             {
-                ProxyRows.Clear();
-                if (ProxyRows.Count == 0 && alive.Count == 0)
-                    ProxyRows.Add(new ProxyRow { Display = "No alive proxies found.", Scheme = "-", Health = "—" });
+                ProxyStatus = $"No proxies came back from {sources} sources — nothing to test.";
+                return;
+            }
+
+            ProxyStatus = $"Fetched {fetched:N0} candidates from {sources} sources. Testing against Steam…";
+
+            // The pool goes in before the first probe, not after the last one. That is what
+            // makes the panel live: every survivor lands in the pool immediately, the grid
+            // repaints from the pool on a wall-clock throttle, and a run started mid-sweep
+            // rides whatever has already been proven. The engine keeps the reference it was
+            // constructed with, so a sweep that finishes late only shapes the next Start.
+            var fresh = new ProxyPool();
+            _pool = fresh;
+            RefreshProxySnapshot();
+
+            int tested = 0, aliveCount = 0, autoOn = 0;
+            long lastUiMs = 0;
+
+            // Probe order follows list order otherwise: the public lists are grouped by
+            // provider, so every early survivor came from the same /24 and the panel read as
+            // one host repeated down the column. One Fisher-Yates pass spreads the sample
+            // across all nine lists from the first probe on.
+            var candidates = new List<ProxyEntry>(result.Proxies);
+            for (int i = candidates.Count - 1; i > 0; i--)
+            {
+                int j = Random.Shared.Next(i + 1);
+                (candidates[i], candidates[j]) = (candidates[j], candidates[i]);
+            }
+
+            await ProxyTester.FilterAliveAsync(candidates, concurrency: ProxyTestConcurrency, onEach: o =>
+            {
+                int done = Interlocked.Increment(ref tested);
+                int a = 0;
+                if (o.IsAlive)
+                {
+                    fresh.Add(o.Proxy);
+                    a = Interlocked.Increment(ref aliveCount);
+                }
+
+                // One-shot path: the pool is usable long before the sweep is over, so the
+                // switch flips at the threshold instead of at the last candidate. Measured
+                // ~25s to 100 alive; waiting for 74,997 probes would make "fetch, test, use"
+                // a half-hour promise and IsFetching would hold both buttons hostage.
+                if (enableWhenReady && a >= AutoUseThreshold &&
+                    Interlocked.Exchange(ref autoOn, 1) == 0)
+                {
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        UseProxy = true;
+                        ProxyStatus = $"Pool: {a:N0} alive — proxy ON, sweep still running.";
+                    }, DispatcherPriority.Background);
+                }
+
+                // Every 100th outcome, not every outcome: a 75,000-candidate sweep must not
+                // queue 75,000 status posts behind a UI thread that is already painting rows.
+                if (done % 100 == 0 || done == fetched)
+                {
+                    int aliveNow = Volatile.Read(ref aliveCount);
+                    Dispatcher.UIThread.Post(
+                        () => ProxyStatus = $"Testing {done:N0}/{fetched:N0}… {aliveNow} alive" +
+                                             (UseProxy ? " · proxy ON" : ""),
+                        DispatcherPriority.Background);
+                }
+
+                if (!o.IsAlive) return;
+
+                // Snapshot on a 400ms clock instead of per proxy: at a high alive rate a
+                // rebuild per survivor would spend the sweep redrawing instead of testing.
+                long now = Environment.TickCount64;
+                long last = Interlocked.Read(ref lastUiMs);
+                if (now - last >= 400 && Interlocked.CompareExchange(ref lastUiMs, now, last) == last)
+                    Dispatcher.UIThread.Post(RefreshProxySnapshot, DispatcherPriority.Background);
             });
 
+            int aliveTotal = aliveCount;
             RefreshProxySnapshot();
-            ProxyStatus = $"Pool: {alive.Count}/{fetched} alive. Ready.";
+
+            if (aliveTotal == 0)
+            {
+                ProxyStatus = $"Tested {fetched:N0}, 0 alive — the pool is empty." +
+                              (UseProxy ? " Proxy stays on; Start will refuse until a pool exists."
+                                        : " Nothing to use.");
+                return;
+            }
+
+            if (enableWhenReady) UseProxy = true;
+
+            ProxyStatus = $"Pool: {aliveTotal:N0}/{fetched:N0} alive." +
+                          (UseProxy ? " Proxy ON — ready to start." : " Ready.");
         }
         catch (Exception ex)
         {
@@ -169,6 +275,11 @@ public sealed partial class MainViewModel : ObservableObject
         Dispatcher.UIThread.InvokeAsync(() =>
         {
             ProxyRows.Clear();
+            if (snap.Entries.Count == 0)
+            {
+                ProxyRows.Add(new ProxyRow { Display = "No proxies in pool.", Scheme = "-", Health = "—" });
+                return;
+            }
             foreach (var e in snap.Entries.Take(200))
             {
                 ProxyRows.Add(new ProxyRow

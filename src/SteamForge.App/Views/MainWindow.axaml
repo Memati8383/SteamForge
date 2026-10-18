@@ -52,8 +52,8 @@
                                         <TextBox Text="{Binding ProxyPath}" Watermark="proxies.txt" Classes="text-input" />
                                     </Border>
                                     <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <Button Content="Load File" Command="{Binding LoadProxyFileCommand}" Classes="secondary-btn" />
-                                        <Button Content="Fetch + Test Free" Command="{Binding FetchProxiesCommand}" IsEnabled="{Binding !IsFetching}" Classes="primary-btn" />
+                                        <Button Content="Load File" Command="{Binding LoadProxyFileCommand}" IsEnabled="{Binding !IsFetching}" Classes="secondary-btn" />
+                                        <Button Content="Fetch + Test" Command="{Binding FetchProxiesCommand}" IsEnabled="{Binding !IsFetching}" Classes="primary-btn" ToolTip.Tip="Refill the pool from the free lists without touching the Use proxy switch." />
                                     </StackPanel>
                                 </StackPanel>
                             </StackPanel>
@@ -207,6 +207,14 @@
         <!-- Control Buttons Section -->
         <Border Grid.Row="2" Background="{StaticResource SurfaceElevated}" BorderBrush="{StaticResource BorderDefault}" BorderThickness="1,0,0,0" Padding="20">
             <StackPanel Orientation="Horizontal" Spacing="12">
+                <!-- One-shot setup: fetch the public free lists, test each candidate against
+                     Steam, install the survivors and flip Use proxy on. Kept out of the
+                     sidebar so it reads as a pre-flight step next to Start. -->
+                <Button Content="⚡ Get Free Proxies"
+                        Command="{Binding FetchAndUseProxiesCommand}"
+                        IsEnabled="{Binding CanFetchProxy}"
+                        Classes="secondary-btn large-btn"
+                        ToolTip.Tip="Fetches free proxy lists from the internet, tests every entry against Steam's auth endpoint, keeps the alive ones and turns Use proxy on automatically." />
                 <Button Content="▶ Start" Command="{Binding StartCommand}" Classes="primary-btn large-btn" IsVisible="{Binding !IsRunning}" />
                 <Button Content="⏸ Pause" Command="{Binding TogglePauseCommand}" Classes="secondary-btn large-btn" IsVisible="{Binding IsRunning}" />
                 <Button Content="■ Stop" Command="{Binding StopCommand}" Classes="danger-btn large-btn" IsVisible="{Binding IsRunning}" />

@@ -421,6 +421,26 @@ internal static class Program
         // Pool must return null when empty rather than throwing.
         var empty = new ProxyPool();
         Check("empty pool returns null", empty.Next() is null);
+
+        // The live panel repaints from Snapshot() while the sweep is still running, so one
+        // entry arriving has to be visible to the very next call — that is the whole
+        // "alive rows drop in during the test" behaviour resting on this method.
+        var live = new ProxyPool();
+        live.AddRange(ProxyPool.ParseLines("9.9.9.9:80\n8.8.8.8:80\n"));
+        Check("baseline before streaming", live.Snapshot().Total == 2);
+
+        live.Add(ProxyPool.ParseLines("7.7.7.7:80")[0]);
+        var streamed = live.Snapshot();
+        // Membership, not position: ConcurrentBag enumeration order is per-thread and
+        // unspecified, so pinning an index here would make the suite flaky for no reason.
+        Check("single Add is visible in the next snapshot",
+            streamed.Total == 3 && streamed.Entries.Any(e => e.Host == "7.7.7.7"),
+            $"total={streamed.Total}");
+
+        for (int i = 0; i < 500; i++)
+            live.Add(ProxyPool.ParseLines($"10.0.{i / 250}.{i % 250 + 1}:3128\n")[0]);
+        Check("sustained streaming does not drop entries", live.Snapshot().Total == 503,
+            $"total={live.Snapshot().Total}");
     }
 
     // ---- session resume: a stopped run resumes, a finished one starts over ----

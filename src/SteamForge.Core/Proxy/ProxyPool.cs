@@ -16,6 +16,8 @@ public sealed class ProxyPool
 
     public int Count => _all.Count;
 
+    public void Add(ProxyEntry entry) => _all.Add(entry);
+
     public void AddRange(IEnumerable<ProxyEntry> entries)
     {
         foreach (var e in entries) _all.Add(e);
